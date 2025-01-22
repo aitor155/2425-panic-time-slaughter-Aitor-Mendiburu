@@ -9,7 +9,7 @@ dotenv.config();
 const mongodbRoute = process.env.MONGO_URI;
 
 //ROUTES import
-
+const panicRoutes = require("./routes/panicRoutes");
 
 //Inicialize app express and server
 const app = express();
@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 //ROUTES
+app.use("", panicRoutes);
 
 async function start() {
 
