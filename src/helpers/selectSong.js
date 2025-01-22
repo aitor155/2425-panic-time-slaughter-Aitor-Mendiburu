@@ -4,7 +4,7 @@ const songs = ["When fire burns within", "A side effect of recovery", "Freddy Me
 const selectSong = ()=> {
     const lengthSongs = songs.length;
     const randomIndex = die.roll(lengthSongs);
-    return songs[randomIndex];
+    console.log("get selected this song: " + songs[randomIndex]);
 }
 
 module.exports = {selectSong};

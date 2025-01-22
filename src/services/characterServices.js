@@ -1,6 +1,8 @@
 const Character = require("../models/characterModel")
 const Rock = require("../models/stoneModel");
 const helpers = require("../helpers/dayActions");
+const timeServices = require("./timeServices");
+const { getActualTime } = require("../helpers/getActualtime");
 
 const getAllCharacters = async () => { 
     try
@@ -37,13 +39,22 @@ const getAllRocks = async () => {
 const updateCharacterByType = async (type, playerData) => {
     try {
         const updatedCharacter = await Character.findOneAndUpdate(
-            type,  
+            {occupation: type},  
             playerData, 
             { 
                 new: true,  // return updated document instead of old one
             }
         );
+
+        //POPULATE
+        /////////////////////
+            await updatedCharacter.equipment.populate('saddlebag');
+            await updatedCharacter.equipment.populate('weapons');
+            await updatedCharacter.equipment.pouch.populate('precious_stones');
+
+        /////////////////////
         return updatedCharacter;
+
     } catch (error) {
         throw error;
     }
@@ -53,23 +64,27 @@ const updateCharacterByType = async (type, playerData) => {
 
 ////MAIN POST CHANGE ///////
 const dayEffect = async () => {
-    const characters = await getAllCharacters();
-    const stones = await getAllRocks();
-    let playersUpdated = actionsDay(characters, stones);
-    let updatedCharacter = [];
+    const charactersMongo = await getAllCharacters();
+    const characters = charactersMongo.map(character => character.toObject());  //convert to plain JS object
+    const stonesMongo = await getAllRocks();
+    const stones = stonesMongo.map(stone => stone.toObject());
+    const timesMongo = await timeServices.getAllTimes();
+    const times = timesMongo.map(time => time.toObject());
+    let playersUpdated = await helpers.actionsDay(characters, stones, times);
     
-    const playersAffected = playersUpdated.map(async (player) => {
-        updatedCharacter = await updateCharacterByType({occupation: player.occupation})
-        return updatedCharacter;
-    })
+    const playersAffectedDB = await Promise.all(playersUpdated.map(async (player) => {
+        return await updateCharacterByType(player.occupation, player);
+    }))
+
+    const newTime = await timeServices.createTime(getActualTime(times));
 
     const response = {
-        updatedPlayers: playersAffected,
-        times: ""
+        updatedPlayers: playersAffectedDB,
+        times: newTime
     }
 
-    return response
+    return response;
 }
 
 
-module.exports = {getAllCharacters, getAllRocks, updateCharacterByType};
+module.exports = {getAllCharacters, getAllRocks, updateCharacterByType, dayEffect};

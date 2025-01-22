@@ -8,7 +8,7 @@ router.get("/players", characterController.getAllCharacters);
 
 router.get("/time", timeController.getAllTimes);
 
-router.post("/time", ) ///cada post es un dia  (new day and km and update player) return all times and all characters updated
+router.post("/time", characterController.updateCharacters) ///cada post es un dia  (new day and km and update player) return all times and all characters updated
 
 
 module.exports = router;

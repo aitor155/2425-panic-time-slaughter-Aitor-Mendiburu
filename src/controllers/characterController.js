@@ -3,7 +3,6 @@ const characterService = require('../services/characterServices');
 const getAllCharacters = async (req, res) => {
     try {
         const characters = await characterService.getAllCharacters();
-        console.log("los characters: " + characters);
         if (characters.length === 0) {
             return res.status(404).send({message: 'Dont exist characters'});
         }
@@ -22,7 +21,7 @@ const getAllCharacters = async (req, res) => {
 const updateCharacters = async (req, res) => { //by filter
 
     try {
-        const updatedCharacters = await characterService.updateCharacterByType();
+        const updatedCharacters = await characterService.dayEffect();
 
         if (!updatedCharacters) {
             return res
