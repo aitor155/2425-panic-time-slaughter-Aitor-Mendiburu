@@ -18,4 +18,29 @@ const getAllCharacters = async (req, res) => {
     }
 };
 
-module.exports = {getAllCharacters}
+
+const updateCharacters = async (req, res) => { //by filter
+
+    try {
+        const updatedCharacters = await characterService.updateCharacterByType();
+
+        if (!updatedCharacters) {
+            return res
+                .status(404)
+                .send({ status: "FAILED",
+                        data: { error: "Can't find updatedCharacter" } });
+        }
+
+        res.status(200).send({ status: "OK", data: updatedCharacters });
+
+    } catch (error) {
+        res
+            .status(error?.status || 500)
+            .send({ status: "FAILED",
+                message: "Error al realizar la peticion:",
+                data: { error: error?.message || error } });
+
+    }
+}
+
+module.exports = {getAllCharacters, updateCharacters}

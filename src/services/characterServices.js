@@ -1,4 +1,6 @@
 const Character = require("../models/characterModel")
+const Rock = require("../models/stoneModel");
+const helpers = require("../helpers/dayActions");
 
 const getAllCharacters = async () => { 
     try
@@ -26,4 +28,48 @@ const getAllCharacters = async () => {
     }
 };
 
-module.exports = {getAllCharacters};
+
+const getAllRocks = async () => {
+    const allRocks = await Rock.find();
+    return allRocks;
+}
+
+const updateCharacterByType = async (type, playerData) => {
+    try {
+        const updatedCharacter = await Character.findOneAndUpdate(
+            type,  
+            playerData, 
+            { 
+                new: true,  // return updated document instead of old one
+            }
+        );
+        return updatedCharacter;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+
+////MAIN POST CHANGE ///////
+const dayEffect = async () => {
+    const characters = await getAllCharacters();
+    const stones = await getAllRocks();
+    let playersUpdated = actionsDay(characters, stones);
+    let updatedCharacter = [];
+    
+    const playersAffected = playersUpdated.map(async (player) => {
+        updatedCharacter = await updateCharacterByType({occupation: player.occupation})
+        return updatedCharacter;
+    })
+
+    const response = {
+        updatedPlayers: playersAffected,
+        times: ""
+    }
+
+    return response
+}
+
+
+module.exports = {getAllCharacters, getAllRocks, updateCharacterByType};
